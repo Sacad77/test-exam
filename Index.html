@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exam Test – Sacad Siciid</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f1a;
+    --card: #141726;
+    --card2: #1a1f35;
+    --accent: #f0c040;
+    --accent2: #5b8dee;
+    --correct: #3ecf8e;
+    --wrong: #f06060;
+    --text: #e8eaf6;
+    --muted: #8890b0;
+    --border: #252a45;
+    --radius: 14px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #0d0f1a 0%, #151c38 60%, #0d1530 100%);
+    border-bottom: 2px solid var(--accent);
+    padding: 36px 24px 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 0%, rgba(240,192,64,.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header .univ {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 5vw, 38px);
+    font-weight: 900;
+    line-height: 1.15;
+    color: #fff;
+  }
+  .header h1 span { color: var(--accent); }
+  .header .meta {
+    margin-top: 14px;
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .header .meta b { color: var(--text); }
+
+	.timer-bar {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .timer-bar .prog-wrap { flex: 1; min-width: 180px; }
+  .prog-track { background: var(--border); border-radius: 99px; height: 6px; overflow: hidden; }
+  .prog-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); border-radius: 99px; transition: width .4s; }
+  .timer-display {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--accent);
+    min-width: 80px;
+    text-align: right;
+  }
+  .timer-display.urgent { color: var(--wrong); animation: pulse .7s infinite alternate; }
+  @keyframes pulse { from { opacity: 1; } to { opacity: .5; } }
+  .q-counter { font-size: 13px; color: var(--muted); }
+  .q-counter b { color: var(--text); }
+
+  /* MAIN */
+  .container { max-width: 860px; margin: 0 auto; padding: 32px 16px 0; }
+
+  /* SECTION HEADER */
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 36px 0 20px;
+  }
+  .section-badge {
+    background: var(--accent);
+    color: #000;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 99px;
+    white-space: nowrap;
+  }
+  .section-title h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 19px;
+    color: var(--text);
+  }
+  .section-line { flex: 1; height: 1px; background: var(--border); }
+
+  /* QUESTION CARD */
+  .q-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px 20px;
+    margin-bottom: 16px;
+    transition: border-color .2s;
+  }
+  .q-card:hover { border-color: var(--accent2); }
+  .q-card.answered-correct { border-color: var(--correct); background: #0d2420; }
+  .q-card.answered-wrong { border-color: var(--wrong); background: #200f0f; }
+
+  .q-num {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 8px;
+  }
+  .q-text {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+  .q-text .math {
+    font-family: 'Courier New', monospace;
+    background: rgba(91,141,238,.12);
+    border-radius: 4px;
+    padding: 0 5px;
+    color: var(--accent2);
+	}
+
+	/* OPTIONS */
+  .options { display: flex; flex-direction: column; gap: 9px; }
+  .opt {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 16px;
+    cursor: pointer;
+    transition: all .18s;
+    font-size: 14px;
+  }
+  .opt:hover { border-color: var(--accent2); background: #1e2547; }
+  .opt input[type="radio"] { display: none; }
+  .opt-dot {
+    width: 18px; height: 18px;
+    border: 2px solid var(--muted);
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .18s;
+  }
+  .opt.selected .opt-dot { border-color: var(--accent2); background: var(--accent2); }
+  .opt.selected .opt-dot::after { content: ''; width: 7px; height: 7px; background: #fff; border-radius: 50%; }
+  .opt.correct-reveal { border-color: var(--correct) !important; background: #0d2420 !important; }
+  .opt.wrong-reveal { border-color: var(--wrong) !important; background: #200f0f !important; }
+  .opt.correct-reveal .opt-dot { border-color: var(--correct); background: var(--correct); }
+  .opt.wrong-reveal .opt-dot { border-color: var(--wrong); background: var(--wrong); }
+  .opt.disabled { cursor: default; pointer-events: none; }
+
+  /* SHORT ANSWER */
+  .short-input {
+    background: var(--card2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 11px 16px;
+    width: 100%;
+    outline: none;
+    transition: border-color .18s;
+  }
+  .short-input:focus { border-color: var(--accent2); }
+  .short-input.correct-input { border-color: var(--correct); }
+  .short-input.wrong-input { border-color: var(--wrong); }
+
+  /* FEEDBACK */
+  .feedback {
+    margin-top: 10px;
+    font-size: 13px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct { background: rgba(62,207,142,.1); color: var(--correct); }
+  .feedback.wrong { background: rgba(240,96,96,.1); color: var(--wrong); }
+
+  /* SUBMIT BTN */
+  .submit-wrap {
+    text-align: center;
+    margin-top: 40px;
+  }
+  .btn-submit {
+    background: linear-gradient(135deg, var(--accent), #e8a020);
+    color: #000;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 1px;
+    border: none;
+    border-radius: 12px;
+    padding: 16px 60px;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    box-shadow: 0 4px 24px rgba(240,192,64,.25);
+  }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(240,192,64,.35); }
+  .btn-submit:active { transform: translateY(0); }
+
+	/* RESULT PANEL */
+  .result-panel {
+    display: none;
+    background: var(--card);
+    border: 2px solid var(--accent);
+    border-radius: 18px;
+    padding: 40px 32px;
+    text-align: center;
+    margin-top: 32px;
+  }
+  .result-panel.show { display: block; animation: fadeUp .5s ease; }
+  @keyframes fadeUp { from { opacity:0; transform: translateY(24px); } to { opacity:1; transform: translateY(0); } }
+  .result-panel .score-big {
+    font-family: 'Playfair Display', serif;
+    font-size: 68px;
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .result-panel .score-label { font-size: 15px; color: var(--muted); margin-top: 6px; }
+  .result-panel .grade {
+    display: inline-block;
+    margin-top: 16px;
+    font-size: 28px;
+    font-weight: 700;
+    padding: 6px 30px;
+    border-radius: 99px;
+  }
+  .grade-A { background: rgba(62,207,142,.15); color: var(--correct); border: 1.5px solid var(--correct); }
+  .grade-B { background: rgba(91,141,238,.15); color: var(--accent2); border: 1.5px solid var(--accent2); }
+  .grade-C { background: rgba(240,192,64,.15); color: var(--accent); border: 1.5px solid var(--accent); }
+  .grade-F { background: rgba(240,96,96,.15); color: var(--wrong); border: 1.5px solid var(--wrong); }
+  .result-breakdown {
+    display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-top: 24px;
+  }
+  .rb-item { text-align: center; }
+  .rb-item .rb-val { font-size: 28px; font-weight: 700; font-family: 'Playfair Display', serif; }
+  .rb-item .rb-lbl { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .btn-retry {
+    margin-top: 28px;
+    background: transparent;
+    border: 1.5px solid var(--accent2);
+    color: var(--accent2);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 12px 36px;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .btn-retry:hover { background: rgba(91,141,238,.12); }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-bottom: 20px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="univ">Jamhuriya University of Science and Technology (JUST)</div>
+  <h1>Exam Test &nbsp;|&nbsp; <span>Sacad Siciid</span></h1>
+  <div class="meta">
+    <span>Faculty of Computer &amp; Information Technology</span>
+    <span>Lecturer: <b>Ahmed Moalin Matan</b></span>
+    <span>Academic Year: <b>2025 / 2026</b></span>
+  </div>
+</div>
+
+<div class="timer-bar">
+  <div>
+    <div class="q-counter">Questions: <b id="qDone">0</b> / <b id="qTotal">0</b></div>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+  <div class="timer-display" id="timerDisp">60:00</div>
+</div>
+
+<div class="container" id="examContainer">
+
+  <!-- ===== F1: ARITHMETIC ===== -->
+  <div class="section-title">
+    <span class="section-badge">F1</span>
+    <h2>Arithmetic — Types of Number &amp; Operations</h2>
+    <div class="section-line"></div>
+  </div>
+	<!-- Q1 -->
+  <div class="q-card" id="card_1">
+    <div class="q-num">Question 1</div>
+    <div class="q-text">Which of the following is a <b>Natural Number</b>?</div>
+    <div class="options">
+      <label class="opt" onclick="choose(1,'A')"><input type="radio" name="q1"><div class="opt-dot"></div> A. &nbsp;0</label>
+      <label class="opt" onclick="choose(1,'B')"><input type="radio" name="q1"><div class="opt-dot"></div> B. &nbsp;−5</label>
+      <label class="opt" onclick="choose(1,'C')"><input type="radio" name="q1"><div class="opt-dot"></div> C. &nbsp;7</label>
+      <label class="opt" onclick="choose(1,'D')"><input type="radio" name="q1"><div class="opt-dot"></div> D. &nbsp;3.5</label>
+    </div>
+    <div class="feedback" id="fb_1"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q-card" id="card_2">
+    <div class="q-num">Question 2</div>
+    <div class="q-text">What is the value of <span class="math">8 + (−3)</span>?</div>
+    <div class="options">
+      <label class="opt" onclick="choose(2,'A')"><input type="radio" name="q2"><div class="opt-dot"></div> A. &nbsp;11</label>
+      <label class="opt" onclick="choose(2,'B')"><input type="radio" name="q2"><div class="opt-dot"></div> B. &nbsp;5</label>
+      <label class="opt" onclick="choose(2,'C')"><input type="radio" name="q2"><div class="opt-dot"></div> C. &nbsp;−5</label>
+      <label class="opt" onclick="choose(2,'D')"><input type="radio" name="q2"><div class="opt-dot"></div> D. &nbsp;3</label>
+    </div>
+    <div class="feedback" id="fb_2"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q-card" id="card_3">
+    <div class="q-num">Question 3</div>
+    <div class="q-text">Evaluate: <span class="math">9 − (−6)</span></div>
+    <div class="options">
+      <label class="opt" onclick="choose(3,'A')"><input type="radio" name="q3"><div class="opt-dot"></div> A. &nbsp;3</label>
+      <label class="opt" onclick="choose(3,'B')"><input type="radio" name="q3"><div class="opt-dot"></div> B. &nbsp;−15</label>
+      <label class="opt" onclick="choose(3,'C')"><input type="radio" name="q3"><div class="opt-dot"></div> C. &nbsp;15</label>
+      <label class="opt" onclick="choose(3,'D')"><input type="radio" name="q3"><div class="opt-dot"></div> D. &nbsp;−3</label>
+    </div>
+    <div class="feedback" id="fb_3"></div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="q-card" id="card_4">
+    <div class="q-num">Question 4</div>
+    <div class="q-text">What is <span class="math">(−5)(3)</span>?</div>
+    <div class="options">
+      <label class="opt" onclick="choose(4,'A')"><input type="radio" name="q4"><div class="opt-dot"></div> A. &nbsp;15</label>
+      <label class="opt" onclick="choose(4,'B')"><input type="radio" name="q4"><div class="opt-dot"></div> B. &nbsp;8</label>
+      <label class="opt" onclick="choose(4,'C')"><input type="radio" name="q4"><div class="opt-dot"></div> C. &nbsp;−8</label>
+      <label class="opt" onclick="choose(4,'D')"><input type="radio" name="q4"><div class="opt-dot"></div> D. &nbsp;−15</label>
+    </div>
+    <div class="feedback" id="fb_4"></div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="q-card" id="card_5">
+    <div class="q-num">Question 5</div>
+    <div class="q-text">Calculate: <span class="math">4 + 5 × 6 ÷ 2 − 12 ÷ 4 × 2 − 1</span><br><small style="color:var(--muted)">Apply correct precedence rules (BODMAS)</small></div>
+    <div class="options">
+      <label class="opt" onclick="choose(5,'A')"><input type="radio" name="q5"><div class="opt-dot"></div> A. &nbsp;44</label>
+      <label class="opt" onclick="choose(5,'B')"><input type="radio" name="q5"><div class="opt-dot"></div> B. &nbsp;2</label>
+      <label class="opt" onclick="choose(5,'C')"><input type="radio" name="q5"><div class="opt-dot"></div> C. &nbsp;12</label>
+      <label class="opt" onclick="choose(5,'D')"><input type="radio" name="q5"><div class="opt-dot"></div> D. &nbsp;20</label>
+    </div>
+    <div class="feedback" id="fb_5"></div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="q-card" id="card_6">
+    <div class="q-num">Question 6</div>
+    <div class="q-text">Which law states: <span class="math">a + b = b + a</span>?</div>
+    <div class="options">
+      <label class="opt" onclick="choose(6,'A')"><input type="radio" name="q6"><div class="opt-dot"></div> A. &nbsp;Associative Law</label>
+      <label class="opt" onclick="choose(6,'B')"><input type="radio" name="q6"><div class="opt-dot"></div> B. &nbsp;Distributive Law</label>
+      <label class="opt" onclick="choose(6,'C')"><input type="radio" name="q6"><div class="opt-dot"></div> C. &nbsp;Commutative Law</label>
+      <label class="opt" onclick="choose(6,'D')"><input type="radio" name="q6"><div class="opt-dot"></div> D. &nbsp;Identity Law</label>
+    </div>
+    <div class="feedback" id="fb_6"></div>
+  </div>
+
+  <!-- SECTION 2: FACTORS & PRIMES -->
+  <div class="section-title">
+    <span class="section-badge">F1</span>
+    <h2>Factors, Prime Numbers &amp; Fractions</h2>
+    <div class="section-line"></div>
+	</div>
+	<!-- Q7 -->
+  <div class="q-card" id="card_7">
+    <div class="q-num">Question 7</div>
+    <div class="q-text">Which of the following is a <b>prime number</b>?</div>
+    <div class="options">
+      <label class="opt" onclick="choose(7,'A')"><input type="radio" name="q7"><div class="opt-dot"></div> A. &nbsp;9</label>
+      <label class="opt" onclick="choose(7,'B')"><input type="radio" name="q7"><div class="opt-dot"></div> B. &nbsp;15</label>
+      <label class="opt" onclick="choose(7,'C')"><input type="radio" name="q7"><div class="opt-dot"></div> C. &nbsp;17</label>
+      <label class="opt" onclick="choose(7,'D')"><input type="radio" name="q7"><div class="opt-dot"></div> D. &nbsp;21</label>
+    </div>
+    <div class="feedback" id="fb_7"></div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="q-card" id="card_8">
+    <div class="q-num">Question 8</div>
+    <div class="q-text">Find the <b>HCF</b> of 24 and 12.</div>
+    <div class="options">
+      <label class="opt" onclick="choose(8,'A')"><input type="radio" name="q8"><div class="opt-dot"></div> A. &nbsp;6</label>
+      <label class="opt" onclick="choose(8,'B')"><input type="radio" name="q8"><div class="opt-dot"></div> B. &nbsp;12</label>
+      <label class="opt" onclick="choose(8,'C')"><input type="radio" name="q8"><div class="opt-dot"></div> C. &nbsp;24</label>
+      <label class="opt" onclick="choose(8,'D')"><input type="radio" name="q8"><div class="opt-dot"></div> D. &nbsp;3</label>
+    </div>
+    <div class="feedback" id="fb_8"></div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="q-card" id="card_9">
+    <div class="q-num">Question 9</div>
+    <div class="q-text">What is <span class="math">(2/3) × (5/7)</span>?</div>
+    <div class="options">
+      <label class="opt" onclick="choose(9,'A')"><input type="radio" name="q9"><div class="opt-dot"></div> A. &nbsp;7/10</label>
+      <label class="opt" onclick="choose(9,'B')"><input type="radio" name="q9"><div class="opt-dot"></div> B. &nbsp;10/21</label>
+      <label class="opt" onclick="choose(9,'C')"><input type="radio" name="q9"><div class="opt-dot"></div> C. &nbsp;7/21</label>
+      <label class="opt" onclick="choose(9,'D')"><input type="radio" name="q9"><div class="opt-dot"></div> D. &nbsp;14/15</label>
+    </div>
+    <div class="feedback" id="fb_9"></div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="q-card" id="card_10">
+    <div class="q-num">Question 10</div>
+    <div class="q-text">What is 24% of 75?</div>
+    <div class="options">
+      <label class="opt" onclick="choose(10,'A')"><input type="radio" name="q10"><div class="opt-dot"></div> A. &nbsp;16</label>
+      <label class="opt" onclick="choose(10,'B')"><input type="radio" name="q10"><div class="opt-dot"></div> B. &nbsp;20</label>
+      <label class="opt" onclick="choose(10,'C')"><input type="radio" name="q10"><div class="opt-dot"></div> C. &nbsp;18</label>
+      <label class="opt" onclick="choose(10,'D')"><input type="radio" name="q10"><div class="opt-dot"></div> D. &nbsp;24</label>
+    </div>
+    <div class="feedback" id="fb_10"></div>
+  </div>
+
+  <!-- Q11 -->
+  <div class="q-card" id="card_11">
+    <div class="q-num">Question 11</div>
+    <div class="q-text">Evaluate: <span class="math">(5/9) + (1/6)</span></div>
+    <div class="options">
+      <label class="opt" onclick="choose(11,'A')"><input type="radio" name="q11"><div class="opt-dot"></div> A. &nbsp;6/15</label>
+      <label class="opt" onclick="choose(11,'B')"><input type="radio" name="q11"><div class="opt-dot"></div> B. &nbsp;13/18</label>
+      <label class="opt" onclick="choose(11,'C')"><input type="radio" name="q11"><div class="opt-dot"></div> C. &nbsp;11/18</label>
+      <label class="opt" onclick="choose(11,'D')"><input type="radio" name="q11"><div class="opt-dot"></div> D. &nbsp;6/54</label>
+    </div>
+    <div class="feedback" id="fb_11"></div>
+  </div>
+
+  <!-- SECTION 3: DECIMALS & POWERS -->
+  <div class="section-title">
+    <span class="section-badge">F1</span>
+    <h2>Decimals, Powers &amp; Number Systems</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <!-- Q12 -->
+  <div class="q-card" id="card_12">
+    <div class="q-num">Question 12</div>
+    <div class="q-text">Round <span class="math">9.4534</span> to <b>2 significant figures</b>.</div>
+    <div class="options">
+      <label class="opt" onclick="choose(12,'A')"><input type="radio" name="q12"><div class="opt-dot"></div> A. &nbsp;9.45</label>
+      <label class="opt" onclick="choose(12,'B')"><input type="radio" name="q12"><div class="opt-dot"></div> B. &nbsp;9.4</label>
+      <label class="opt" onclick="choose(12,'C')"><input type="radio" name="q12"><div class="opt-dot"></div> C. &nbsp;9.5</label>
+      <label class="opt" onclick="choose(12,'D')"><input type="radio" name="q12"><div class="opt-dot"></div> D. &nbsp;9.453</label>
+    </div>
+    <div class="feedback" id="fb_12"></div>
+  </div>
+
+  <!-- Q13 -->
+  <div class="q-card" id="card_13">
+    <div class="q-num">Question 13</div>
+    <div class="q-text">What is <span class="math">6⁻²</span>?</div>
+    <div class="options">
+      <label class="opt" onclick="choose(13,'A')"><input type="radio" name="q13"><div class="opt-dot"></div> A. &nbsp;−36</label>
+      <label class="opt" onclick="choose(13,'B')"><input type="radio" name="q13"><div class="opt-dot"></div> B. &nbsp;36</label>
+      <label class="opt" onclick="choose(13,'C')"><input type="radio" name="q13"><div class="opt-dot"></div> C. &nbsp;1/36</label>
+      <label class="opt" onclick="choose(13,'D')"><input type="radio" name="q13"><div class="opt-dot"></div> D. &nbsp;−1/36</label>
+    </div>
+    <div class="feedback" id="fb_13"></div>
+  </div>
+
+  <!-- Q14 -->
+  <div class="q-card" id="card_14">
+    <div class="q-num">Question 14</div>
+    <div class="q-text">Write <span class="math">57.3</span> in standard form.</div>
+    <div class="options">
+      <label class="opt" onclick="choose(14,'A')"><input type="radio" name="q14"><div class="opt-dot"></div> A. &nbsp;573 × 10⁻¹</label>
+      <label class="opt" onclick="choose(14,'B')"><input type="radio" name="q14"><div class="opt-dot"></div> B. &nbsp;5.73 × 10¹</label>
+      <label class="opt" onclick="choose(14,'C')"><input type="radio" name="q14"><div class="opt-dot"></div> C. &nbsp;0.573 × 10²</label>
+      <label class="opt" onclick="choose(14,'D')"><input type="radio" name="q14"><div class="opt-dot"></div> D. &nbsp;5.73 × 10²</label>
+    </div>
+    <div class="feedback" id="fb_14"></div>
+  </div>
+
+  <!-- Q15 -->
+  <div class="q-card" id="card_15">
+    <div class="q-num">Question 15</div>
+    <div class="q-text">Convert binary <span class="math">1011.101₂</span> to denary (decimal).</div>
+    <div class="options">
+      <label class="opt" onclick="choose(15,'A')"><input type="radio" name="q15"><div class="opt-dot"></div> A. &nbsp;10.5</label>
+      <label class="opt" onclick="choose(15,'B')"><input type="radio" name="q15"><div class="opt-dot"></div> B. &nbsp;11.625</label>
+      <label class="opt" onclick="choose(15,'C')"><input type="radio" name="q15"><div class="opt-dot"></div> C. &nbsp;12.5</label>
+      <label class="opt" onclick="choose(15,'D')"><input type="radio" name="q15"><div class="opt-dot"></div> D. &nbsp;13.375</label>
+    </div>
+    <div class="feedback" id="fb_15"></div>
+  </div>
+<!-- Q16 -->
+  <div class="q-card" id="card_16">
+    <div class="q-num">Question 16</div>
+    <div class="q-text">Change <span class="math">245₁₀</span> to binary form.</div>
+    <div class="options">
+      <label class="opt" onclick="choose(16,'A')"><input type="radio" name="q16"><div class="opt-dot"></div> A. &nbsp;10100000₂</label>
+      <label class="opt" onclick="choose(16,'B')"><input type="radio" name="q16"><div class="opt-dot"></div> B. &nbsp;11110101₂</label>
+      <label class="opt" onclick="choose(16,'C')"><input type="radio" name="q16"><div class="opt-dot"></div> C. &nbsp;11110111₂</label>
+      <label class="opt" onclick="choose(16,'D')"><input type="radio" name="q16"><div class="opt-dot"></div> D. &nbsp;11100101₂</label>
+    </div>
+    <div class="feedback" id="fb_16"></div>
+  </div>
+
+  <!-- Q17 -->
+  <div class="q-card" id="card_17">
+    <div class="q-num">Question 17</div>
+    <div class="q-text">Convert <span class="math">357.321₈</span> (octal) to denary.</div>
+    <div class="options">
+      <label class="opt" onclick="choose(17,'A')"><input type="radio" name="q17"><div class="opt-dot"></div> A. &nbsp;179.582</label>
+      <label class="opt" onclick="choose(17,'B')"><input type="radio" name="q17"><div class="opt-dot"></div> B. &nbsp;239.408</label>
+      <label class="opt" onclick="choose(17,'C')"><input type="radio" name="q17"><div class="opt-dot"></div> C. &nbsp;257.000</label>
+      <label class="opt" onclick="choose(17,'D')"><input type="radio" name="q17"><div class="opt-dot"></div> D. &nbsp;365.000</label>
+    </div>
+    <div class="feedback" id="fb_17"></div>
+  </div>
+
+  <!-- ===== F2 SECTION 1 ===== -->
+  <div class="section-title">
+    <span class="section-badge" style="background:var(--accent2);color:#fff;">F2 — S1</span>
+    <h2>Algebraic Expressions</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <!-- Q18 -->
+  <div class="q-card" id="card_18">
+    <div class="q-num">Question 18</div>
+    <div class="q-text">Simplify by collecting like terms:<br><span class="math">4x − 3x + 3y + 5y − 2z + 4z</span></div>
+    <div class="options">
+      <label class="opt" onclick="choose(18,'A')"><input type="radio" name="q18"><div class="opt-dot"></div> A. &nbsp;x + 8y + 2z</label>
+      <label class="opt" onclick="choose(18,'B')"><input type="radio" name="q18"><div class="opt-dot"></div> B. &nbsp;7x + 8y + 2z</label>
+      <label class="opt" onclick="choose(18,'C')"><input type="radio" name="q18"><div class="opt-dot"></div> C. &nbsp;x + 2y + 2z</label>
+      <label class="opt" onclick="choose(18,'D')"><input type="radio" name="q18"><div class="opt-dot"></div> D. &nbsp;x + 8y − 2z</label>
+    </div>
+    <div class="feedback" id="fb_18"></div>
+  </div>
+
+  <!-- Q19 -->
+  <div class="q-card" id="card_19">
+    <div class="q-num">Question 19</div>
+    <div class="q-text">Factorize: <span class="math">ab + bc</span></div>
+    <div class="options">
+      <label class="opt" onclick="choose(19,'A')"><input type="radio" name="q19"><div class="opt-dot"></div> A. &nbsp;a(b + c)</label>
+      <label class="opt" onclick="choose(19,'B')"><input type="radio" name="q19"><div class="opt-dot"></div> B. &nbsp;b(a + c)</label>
+      <label class="opt" onclick="choose(19,'C')"><input type="radio" name="q19"><div class="opt-dot"></div> C. &nbsp;c(a + b)</label>
+      <label class="opt" onclick="choose(19,'D')"><input type="radio" name="q19"><div class="opt-dot"></div> D. &nbsp;ab(1 + c)</label>
+    </div>
+    <div class="feedback" id="fb_19"></div>
+  </div>
+
+  <!-- Q20 -->
+  <div class="q-card" id="card_20">
+    <div class="q-num">Question 20</div>
+    <div class="q-text">Expand: <span class="math">3x(y − 2z)</span></div>
+    <div class="options">
+      <label class="opt" onclick="choose(20,'A')"><input type="radio" name="q20"><div class="opt-dot"></div> A. &nbsp;3xy − 2z</label>
+      <label class="opt" onclick="choose(20,'B')"><input type="radio" name="q20"><div class="opt-dot"></div> B. &nbsp;3xy + 6xz</label>
+      <label class="opt" onclick="choose(20,'C')"><input type="radio" name="q20"><div class="opt-dot"></div> C. &nbsp;3xy − 6xz</label>
+      <label class="opt" onclick="choose(20,'D')"><input type="radio" name="q20"><div class="opt-dot"></div> D. &nbsp;3x − 6xz</label>
+    </div>
+    <div class="feedback" id="fb_20"></div>
+  </div>
+
+  <!-- Q21 -->
+  <div class="q-card" id="card_21">
+    <div class="q-num">Question 21</div>
+    <div class="q-text">Expand the nested brackets: <span class="math">7(a − [4 − 5(b − 3a)])</span></div>
+    <div class="options">
+      <label class="opt" onclick="choose(21,'A')"><input type="radio" name="q21"><div class="opt-dot"></div> A. &nbsp;35b − 98a + 28</label>
+      <label class="opt" onclick="choose(21,'B')"><input type="radio" name="q21"><div class="opt-dot"></div> B. &nbsp;35b − 98a − 28</label>
+      <label class="opt" onclick="choose(21,'C')"><input type="radio" name="q21"><div class="opt-dot"></div> C. &nbsp;35b + 98a − 28</label>
+      <label class="opt" onclick="choose(21,'D')"><input type="radio" name="q21"><div class="opt-dot"></div> D. &nbsp;−35b + 98a − 28</label>
+    </div>
+    <div class="feedback" id="fb_21"></div>
+  </div>
+
+  <!-- Q22 -->
+  <div class="q-card" id="card_22">
+    <div class="q-num">Question 22</div>
+    <div class="q-text">In the expression <span class="math">8x − 3xy</span>, what is the <b>coefficient</b> of the <em>xy</em> term?</div>
+    <div class="options">
+      <label class="opt" onclick="choose(22,'A')"><input type="radio" name="q22"><div class="opt-dot"></div> A. &nbsp;8</label>
+      <label class="opt" onclick="choose(22,'B')"><input type="radio" name="q22"><div class="opt-dot"></div> B. &nbsp;x</label>
+      <label class="opt" onclick="choose(22,'C')"><input type="radio" name="q22"><div class="opt-dot"></div> C. &nbsp;−3</label>
+      <label class="opt" onclick="choose(22,'D')"><input type="radio" name="q22"><div class="opt-dot"></div> D. &nbsp;3</label>
+    </div>
+    <div class="feedback" id="fb_22"></div>
+	</div>
+
+	
+	<!-- ===== F2 SECTION 2: POWERS ===== -->
+  <div class="section-title">
+    <span class="section-badge" style="background:var(--accent2);color:#fff;">F2 — S2</span>
+    <h2>Powers (Indices)</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <!-- Q23 -->
+  <div class="q-card" id="card_23">
+    <div class="q-num">Question 23</div>
+    <div class="q-text">Simplify: <span class="math">aᵐ × aⁿ</span></div>
+    <div class="options">
+      <label class="opt" onclick="choose(23,'A')"><input type="radio" name="q23"><div class="opt-dot"></div> A. &nbsp;aᵐ⁻ⁿ</label>
+      <label class="opt" onclick="choose(23,'B')"><input type="radio" name="q23"><div class="opt-dot"></div> B. &nbsp;aᵐⁿ</label>
+      <label class="opt" onclick="choose(23,'C')"><input type="radio" name="q23"><div class="opt-dot"></div> C. &nbsp;aᵐ⁺ⁿ</label>
+      <label class="opt" onclick="choose(23,'D')"><input type="radio" name="q23"><div class="opt-dot"></div> D. &nbsp;2aᵐ</label>
+    </div>
+    <div class="feedback" id="fb_23"></div>
+  </div>
+
+  <!-- Q24 -->
+  <div class="q-card" id="card_24">
+    <div class="q-num">Question 24</div>
+    <div class="q-text">What is the value of <span class="math">a⁰</span> (for any non-zero a)?</div>
+    <div class="options">
+      <label class="opt" onclick="choose(24,'A')"><input type="radio" name="q24"><div class="opt-dot"></div> A. &nbsp;0</label>
+      <label class="opt" onclick="choose(24,'B')"><input type="radio" name="q24"><div class="opt-dot"></div> B. &nbsp;a</label>
+      <label class="opt" onclick="choose(24,'C')"><input type="radio" name="q24"><div class="opt-dot"></div> C. &nbsp;1</label>
+      <label class="opt" onclick="choose(24,'D')"><input type="radio" name="q24"><div class="opt-dot"></div> D. &nbsp;∞</label>
+    </div>
+    <div class="feedback" id="fb_24"></div>
+  </div>
+
+  <!-- Q25 -->
+  <div class="q-card" id="card_25">
+    <div class="q-num">Question 25</div>
+    <div class="q-text">Simplify: <span class="math">5⁶ ÷ 5²</span></div>
+    <div class="options">
+      <label class="opt" onclick="choose(25,'A')"><input type="radio" name="q25"><div class="opt-dot"></div> A. &nbsp;5¹²</label>
+      <label class="opt" onclick="choose(25,'B')"><input type="radio" name="q25"><div class="opt-dot"></div> B. &nbsp;5³</label>
+      <label class="opt" onclick="choose(25,'C')"><input type="radio" name="q25"><div class="opt-dot"></div> C. &nbsp;5⁴</label>
+      <label class="opt" onclick="choose(25,'D')"><input type="radio" name="q25"><div class="opt-dot"></div> D. &nbsp;5⁸</label>
+    </div>
+    <div class="feedback" id="fb_25"></div>
+  </div>
+
+  <!-- Q26 -->
+  <div class="q-card" id="card_26">
+    <div class="q-num">Question 26</div>
+    <div class="q-text">What does <span class="math">a⁻ᵐ</span> equal?</div>
+    <div class="options">
+      <label class="opt" onclick="choose(26,'A')"><input type="radio" name="q26"><div class="opt-dot"></div> A. &nbsp;−aᵐ</label>
+      <label class="opt" onclick="choose(26,'B')"><input type="radio" name="q26"><div class="opt-dot"></div> B. &nbsp;1/aᵐ</label>
+      <label class="opt" onclick="choose(26,'C')"><input type="radio" name="q26"><div class="opt-dot"></div> C. &nbsp;aᵐ</label>
+      <label class="opt" onclick="choose(26,'D')"><input type="radio" name="q26"><div class="opt-dot"></div> D. &nbsp;m/a</label>
+    </div>
+    <div class="feedback" id="fb_26"></div>
+  </div>
+
+  <!-- Q27 -->
+  <div class="q-card" id="card_27">
+    <div class="q-num">Question 27</div>
+    <div class="q-text">Simplify: <span class="math">(aᵐ)ⁿ</span></div>
+    <div class="options">
+      <label class="opt" onclick="choose(27,'A')"><input type="radio" name="q27"><div class="opt-dot"></div> A. &nbsp;aᵐ⁺ⁿ</label>
+      <label class="opt" onclick="choose(27,'B')"><input type="radio" name="q27"><div class="opt-dot"></div> B. &nbsp;aᵐ⁻ⁿ</label>
+      <label class="opt" onclick="choose(27,'C')"><input type="radio" name="q27"><div class="opt-dot"></div> C. &nbsp;aᵐⁿ</label>
+      <label class="opt" onclick="choose(27,'D')"><input type="radio" name="q27"><div class="opt-dot"></div> D. &nbsp;naᵐ</label>
+    </div>
+    <div class="feedback" id="fb_27"></div>
+  </div>
+
+  <!-- ===== F2 SECTION 3: LOGARITHMS ===== -->
+  <div class="section-title">
+    <span class="section-badge" style="background:var(--correct);color:#000;">F2 — S3</span>
+    <h2>Logarithms</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <!-- Q28 -->
+  <div class="q-card" id="card_28">
+    <div class="q-num">Question 28</div>
+    <div class="q-text">If <span class="math">25 = 5²</span>, what is <span class="math">log₅ 25</span>?</div>
+    <div class="options">
+      <label class="opt" onclick="choose(28,'A')"><input type="radio" name="q28"><div class="opt-dot"></div> A. &nbsp;5</label>
+      <label class="opt" onclick="choose(28,'B')"><input type="radio" name="q28"><div class="opt-dot"></div> B. &nbsp;25</label>
+      <label class="opt" onclick="choose(28,'C')"><input type="radio" name="q28"><div class="opt-dot"></div> C. &nbsp;2</label>
+      <label class="opt" onclick="choose(28,'D')"><input type="radio" name="q28"><div class="opt-dot"></div> D. &nbsp;10</label>
+    </div>
+    <div class="feedback" id="fb_28"></div>
+  </div>
+
+  <!-- Q29 -->
+  <div class="q-card" id="card_29">
+    <div class="q-num">Question 29</div>
+    <div class="q-text">Which rule of logarithms states: <span class="math">logₐ(xy) = logₐ x + logₐ y</span>?</div>
+    <div class="options">
+      <label class="opt" onclick="choose(29,'A')"><input type="radio" name="q29"><div class="opt-dot"></div> A. &nbsp;Power rule</label>
+      <label class="opt" onclick="choose(29,'B')"><input type="radio" name="q29"><div class="opt-dot"></div> B. &nbsp;Product rule</label>
+      <label class="opt" onclick="choose(29,'C')"><input type="radio" name="q29"><div class="opt-dot"></div> C. &nbsp;Quotient rule</label>
+      <label class="opt" onclick="choose(29,'D')"><input type="radio" name="q29"><div class="opt-dot"></div> D. &nbsp;Base change rule</label>
+    </div>
+    <div class="feedback" id="fb_29"></div>
+  </div>
+
+  <!-- Q30 -->
+  <div class="q-card" id="card_30">
+    <div class="q-num">Question 30</div>
+    <div class="q-text">Find <span class="math">x</span> if <span class="math">x = log₂ 16</span>.</div>
+    <div class="options">
+      <label class="opt" onclick="choose(30,'A')"><input type="radio" name="q30"><div class="opt-dot"></div> A. &nbsp;2</label>
+      <label class="opt" onclick="choose(30,'B')"><input type="radio" name="q30"><div class="opt-dot"></div> B. &nbsp;8</label>
+      <label class="opt" onclick="choose(30,'C')"><input type="radio" name="q30"><div class="opt-dot"></div> C. &nbsp;4</label>
+      <label class="opt" onclick="choose(30,'D')"><input type="radio" name="q30"><div class="opt-dot"></div> D. &nbsp;16</label>
+    </div>
+    <div class="feedback" id="fb_30"></div>
+  </div>
+
+  <!-- Q31 -->
+  <div class="q-card" id="card_31">
+    <div class="q-num">Question 31</div>
+    <div class="q-text">Simplify: <span class="math">logₐ x³</span></div>
+    <div class="options">
+      <label class="opt" onclick="choose(31,'A')"><input type="radio" name="q31"><div class="opt-dot"></div> A. &nbsp;3 logₐ x</label>
+      <label class="opt" onclick="choose(31,'B')"><input type="radio" name="q31"><div class="opt-dot"></div> B. &nbsp;logₐ(3x)</label>
+      <label class="opt" onclick="choose(31,'C')"><input type="radio" name="q31"><div class="opt-dot"></div> C. &nbsp;(logₐ x)³</label>
+      <label class="opt" onclick="choose(31,'D')"><input type="radio" name="q31"><div class="opt-dot"></div> D. &nbsp;x logₐ 3</label>
+    </div>
+    <div class="feedback" id="fb_31"></div>
+  </div>
+
+	<!-- Q32 -->
+  <div class="q-card" id="card_32">
+    <div class="q-num">Question 32</div>
+    <div class="q-text">What is the value of <span class="math">logₐ a</span>?</div>
+    <div class="options">
+      <label class="opt" onclick="choose(32,'A')"><input type="radio" name="q32"><div class="opt-dot"></div> A. &nbsp;0</label>
+      <label class="opt" onclick="choose(32,'B')"><input type="radio" name="q32"><div class="opt-dot"></div> C. &nbsp;a</label>
+      <label class="opt" onclick="choose(32,'C')"><input type="radio" name="q32"><div class="opt-dot"></div> C. &nbsp;1</label>
+      <label class="opt" onclick="choose(32,'D')"><input type="radio" name="q32"><div class="opt-dot"></div> D. &nbsp;∞</label>
+    </div>
+    <div class="feedback" id="fb_32"></div>
+  </div>
+
+  <!-- Q33 -->
+  <div class="q-card" id="card_33">
+    <div class="q-num">Question 33</div>
+    <div class="q-text">Logarithms to base <b>e</b> are called:</div>
+    <div class="options">
+      <label class="opt" onclick="choose(33,'A')"><input type="radio" name="q33"><div class="opt-dot"></div> A. &nbsp;Common logarithms</label>
+      <label class="opt" onclick="choose(33,'B')"><input type="radio" name="q33"><div class="opt-dot"></div> B. &nbsp;Binary logarithms</label>
+      <label class="opt" onclick="choose(33,'C')"><input type="radio" name="q33"><div class="opt-dot"></div> C. &nbsp;Natural logarithms</label>
+      <label class="opt" onclick="choose(33,'D')"><input type="radio" name="q33"><div class="opt-dot"></div> D. &nbsp;Denary logarithms</label>
+    </div>
+    <div class="feedback" id="fb_33"></div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="submit-wrap">
+    <button class="btn-submit" onclick="submitExam()">Submit Exam</button>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-panel" id="resultPanel">
+    <div class="score-big" id="scoreVal">0%</div>
+    <div class="score-label">Overall Score</div>
+    <div class="grade" id="gradeVal"></div>
+    <div class="result-breakdown">
+      <div class="rb-item"><div class="rb-val" id="rbCorrect" style="color:var(--correct)">0</div><div class="rb-lbl">Correct</div></div>
+      <div class="rb-item"><div class="rb-val" id="rbWrong" style="color:var(--wrong)">0</div><div class="rb-lbl">Wrong</div></div>
+      <div class="rb-item"><div class="rb-val" id="rbSkip" style="color:var(--muted)">0</div><div class="rb-lbl">Skipped</div></div>
+    </div>
+    <br>
+    <button class="btn-retry" onclick="retryExam()">↺ Retry Exam</button>
+  </div>
+
+</div>
+
+<div class="footer">Jamhuriya University · Faculty of Computer &amp; Information Technology · 2025/2026</div>
+
+<script>
+// ===================== ANSWER KEY =====================
+const answers = {
+  1:'C', 2:'B', 3:'C', 4:'D', 5:'C',
+  6:'C', 7:'C', 8:'B', 9:'B', 10:'C',
+  11:'B', 12:'C', 13:'C', 14:'B', 15:'B',
+  16:'B', 17:'B', 18:'A', 19:'B', 20:'C',
+  21:'B', 22:'C', 23:'C', 24:'C', 25:'C',
+  26:'B', 27:'C', 28:'C', 29:'B', 30:'C',
+  31:'A', 32:'C', 33:'C'
+};
+
+const explanations = {
+  1: "Natural numbers are counting numbers starting from 1: 1, 2, 3... Zero is a whole number but not natural. Negative numbers and decimals are excluded.",
+  2: "Adding a negative number = subtracting: 8 + (−3) = 8 − 3 = 5.",
+  3: "Subtracting a negative = adding: 9 − (−6) = 9 + 6 = 15.",
+  4: "Positive × Negative = Negative: (−5)(3) = −15.",
+  5: "BODMAS: 4 + 5×6÷2 − 12÷4×2 − 1 = 4+15−6−1 = 12.",
+  6: "The Commutative Law: a+b = b+a and a×b = b×a.",
+  7: "17 has only factors 1 and 17 → prime. 9=3×3, 15=3×5, 21=3×7.",
+  8: "HCF of 24 and 12 is 12 (since 12 divides evenly into 24).",
+  9: "(2/3)×(5/7) = 10/21.",
+  10: "24% of 75 = (24/100)×75 = 18.",
+  11: "5/9 + 1/6: LCM of 9&6 is 18 → 10/18 + 3/18 = 13/18.",
+  12: "9.4534 rounded to 2 sig figs: first two significant digits are 9 and 4, next is 5 → round up → 9.5.",
+  13: "Negative power = reciprocal: 6⁻² = 1/6² = 1/36.",
+  14: "57.3 = 5.73 × 10¹ (standard form: 1 ≤ mantissa < 10).",
+  15: "1011.101₂ = 8+2+1+0.5+0.125 = 11.625₁₀.",
+  16: "245÷2: remainders read bottom→top = 11110101₂.",
+  17: "357.321₈ = 3×64+5×8+7+3/8+2/64+1/512 = 239.408₁₀.",
+  18: "4x−3x=x, 3y+5y=8y, −2z+4z=2z → x+8y+2z.",
+  19: "ab+bc = b(a+c). Common factor is b.",
+  20: "3x(y−2z) = 3xy − 6xz.",
+  21: "Work from innermost: 7(a−[4−5b+15a]) = 7(a−4+5b−15a) = 7a−28+35b−105a = 35b−98a−28.",
+  22: "In 8x − 3xy, the coefficient of xy is −3.",
+  23: "Law of indices: aᵐ × aⁿ = aᵐ⁺ⁿ.",
+  24: "Any non-zero number raised to power zero = 1.",
+  25: "5⁶ ÷ 5² = 5⁶⁻² = 5⁴.",
+  26: "Negative index = reciprocal: a⁻ᵐ = 1/aᵐ.",
+  27: "(aᵐ)ⁿ = aᵐⁿ — multiply the powers.",
+  28: "25 = 5² → log₅ 25 = 2.",
+  29: "logₐ(xy) = logₐ x + logₐ y is the Product Rule.",
+  30: "2ˣ = 16 = 2⁴ → x = 4.",
+  31: "Power rule: logₐ xⁿ = n logₐ x → logₐ x³ = 3 logₐ x.",
+  32: "logₐ a = 1 because a¹ = a.",
+  33: "Logarithms to base e (≈2.718) are Natural Logarithms, written as ln."
+};
+
+const totalQ = Object.keys(answers).length;
+const userAnswers = {};
+let submitted = false;
+let timerInterval;
+let timeLeft = 60 * 60; // 60 minutes
+
+// Init
+document.getElementById('qTotal').textContent = totalQ;
+updateProgress();
+startTimer();
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+    const s = (timeLeft % 60).toString().padStart(2, '0');
+    const td = document.getElementById('timerDisp');
+    td.textContent = m + ':' + s;
+    if (timeLeft <= 300) td.classList.add('urgent');
+    if (timeLeft <= 0) { clearInterval(timerInterval); submitExam(); }
+  }, 1000);
+}
+
+function choose(qNum, opt) {
+  if (submitted) return;
+  userAnswers[qNum] = opt;
+  const card = document.getElementById('card_' + qNum);
+  card.querySelectorAll('.opt').forEach(el => el.classList.remove('selected'));
+  const opts = card.querySelectorAll('.opt');
+  const idx = ['A','B','C','D'].indexOf(opt);
+  if (opts[idx]) opts[idx].classList.add('selected');
+  updateProgress();
+}
+
+function updateProgress() {
+  const done = Object.keys(userAnswers).length;
+  document.getElementById('qDone').textContent = done;
+  document.getElementById('progFill').style.width = ((done / totalQ) * 100) + '%';
+}
+
+function submitExam() {
+  if (submitted) return;
+  submitted = true;
+  clearInterval(timerInterval);
+
+  let correct = 0, wrong = 0, skip = 0;
+
+  for (let q = 1; q <= totalQ; q++) {
+    const card = document.getElementById('card_' + q);
+    const correctAns = answers[q];
+    const userAns = userAnswers[q];
+    const fb = document.getElementById('fb_' + q);
+    const opts = card.querySelectorAll('.opt');
+    const letters = ['A','B','C','D'];
+
+    opts.forEach(el => { el.classList.add('disabled'); el.style.pointerEvents = 'none'; });
+
+    const correctIdx = letters.indexOf(correctAns);
+    if (opts[correctIdx]) opts[correctIdx].classList.add('correct-reveal');
+
+    if (!userAns) {
+      skip++;
+      fb.textContent = '⚠ Skipped — Correct answer: ' + correctAns + '. ' + (explanations[q] || '');
+      fb.className = 'feedback show wrong';
+    } else if (userAns === correctAns) {
+      correct++;
+      card.classList.add('answered-correct');
+      fb.textContent = '✓ Correct! ' + (explanations[q] || '');
+      fb.className = 'feedback show correct';
+    } else {
+      wrong++;
+      const wrongIdx = letters.indexOf(userAns);
+      if (opts[wrongIdx]) opts[wrongIdx].classList.add('wrong-reveal');
+      card.classList.add('answered-wrong');
+      fb.textContent = '✗ Wrong. Correct answer: ' + correctAns + '. ' + (explanations[q] || '');
+      fb.className = 'feedback show wrong';
+    }
+  }
+
+  const pct = Math.round((correct / totalQ) * 100);
+  document.getElementById('scoreVal').textContent = pct + '%';
+  document.getElementById('rbCorrect').textContent = correct;
+  document.getElementById('rbWrong').textContent = wrong;
+  document.getElementById('rbSkip').textContent = skip;
+
+  const gradeEl = document.getElementById('gradeVal');
+  if (pct >= 80) { gradeEl.textContent = 'Grade A — Excellent!'; gradeEl.className = 'grade grade-A'; }
+  else if (pct >= 65) { gradeEl.textContent = 'Grade B — Good'; gradeEl.className = 'grade grade-B'; }
+  else if (pct >= 50) { gradeEl.textContent = 'Grade C — Pass'; gradeEl.className = 'grade grade-C'; }
+  else { gradeEl.textContent = 'Grade F — Needs Improvement'; gradeEl.className = 'grade grade-F'; }
+
+  document.getElementById('resultPanel').classList.add('show');
+  document.getElementById('resultPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function retryExam() {
+  location.reload();
+}
+</script>
+</body>
+</html>
+
+
+
+
